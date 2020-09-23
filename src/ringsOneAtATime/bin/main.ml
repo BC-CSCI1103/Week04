@@ -54,12 +54,12 @@ let view (n, image) = image
 (* view : model -> model *)
 let update (n, image) = (n - 1, rings 1 image)
 
-let _ = Animate.start (100, empty)
-		       ~name:"Ring Demo"
-		       ~width:displayWidth
-           ~height:displayHeight
+let _ = Animate.start initialModel
+		       ~name:   "Ring Demo2"
+		       ~width:  displayWidth
+           ~height: displayHeight
            ~onTick: update
-           ~rate: 0.1
-           ~stopWhen:finished
-		       ~view:view
-		       ~viewLast:view
+		       ~view:   view
+           ~rate:   0.1
+           ~stopWhen: finished
+		       ~viewLast: view
