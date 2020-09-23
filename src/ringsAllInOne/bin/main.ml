@@ -11,15 +11,22 @@
  *)
 let displayWidth = 800.
 let displayHeight = displayWidth
+let half = displayWidth /. 2.0
 
+(* A fresh set of rings each time
+*)
 let () = Random.self_init ()
 
-(* Make exactly one empty scene
+type model = unit
+let initialModel = ()
+
+(* Make the background
 *)
 let empty = Image.empty displayWidth displayHeight
 
+(* ring : unit -> Image.t *)
 let ring () =
-  let radius = Random.float (displayWidth /. 2.0) in
+  let radius = Random.float half in
   let width = Random.float radius in
   let color = Color.random () in
   let outer = Image.circle radius color in
@@ -27,22 +34,23 @@ let ring () =
   in
   Image.placeImage inner (width, width) outer
 
+(* addRings : int -> Image.t -> Image.t *)
 let rec addRings n background =
   match n = 0 with
   | true  -> background
   | false ->
-    let x = (Random.float displayWidth) -. displayWidth /. 2.0 in
-    let y = (Random.float displayWidth) -. displayWidth /. 2.0
+    let x = (Random.float displayWidth) -. half in
+    let y = (Random.float displayWidth) -. half
     in
     addRings (n - 1) (Image.placeImage (ring ()) (x, y) background)
 
-let finished _ = true     (* draw exactly once *)
+(* finished : model -> bool *)
+let finished () = true     (* draw exactly once *)
 
-(* view : 'a -> Image.t   this version for demo of addStripe
- *)
+(* view : model -> Image.t *)
 let view () = addRings 100 empty
 
-let _ = Animate.start ()
+let _ = Animate.start initialModel
 		       ~name:"Static Ring Demo"
 		       ~width:displayWidth
            ~height:displayHeight
