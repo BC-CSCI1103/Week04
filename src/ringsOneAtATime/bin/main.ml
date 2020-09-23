@@ -12,15 +12,22 @@
  *)
 let displayWidth = 800.
 let displayHeight = displayWidth
+let half = displayWidth /. 2.0
 
+(* A fresh set of random numbers each time
+*)
 let () = Random.self_init ()
 
-(* Make exactly one empty scene
+(* Make an empty image
 *)
 let empty = Image.empty displayWidth displayHeight
 
+type model = int * Image.t
+let initialModel = (100, empty)
+
+(* ring : unit -> Image.t *)
 let ring () =
-  let radius = Random.float (displayWidth /. 2.0) in
+  let radius = Random.float half in
   let width = Random.float radius in
   let color = Color.random () in
   let outer = Image.circle radius color in
@@ -28,21 +35,23 @@ let ring () =
   in
   Image.placeImage inner (width, width) outer
 
+(* rings : int -> Image.t -> Image.t *)
 let rec rings n background =
   match n = 0 with
   | true  -> background
   | false ->
-    let x = (Random.float displayWidth) -. displayWidth /. 2.0 in
-    let y = (Random.float displayWidth) -. displayWidth /. 2.0
+    let x = (Random.float displayWidth) -. half in
+    let y = (Random.float displayWidth) -. half
     in
     rings (n - 1) (Image.placeImage (ring ()) (x, y) background)
 
+(* finished : model -> bool *)
 let finished (n, _) = n = 0
 
-(* view : 'a -> Image.t   this version for demo of addStripe
- *)
+(* view : model -> Image.t *)
 let view (n, image) = image
 
+(* view : model -> model *)
 let update (n, image) = (n - 1, rings 1 image)
 
 let _ = Animate.start (100, empty)
