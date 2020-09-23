@@ -2,19 +2,19 @@
 
 ## Fall 2019
 
-Boston College
+Robert Muller - Boston College
 
 ---
 
-## DRAFT Lecture Notes
+## Lecture Notes
 ## Week 4
 
 **Topics:**
 
 1. A Note on Simplification
 2. Local Functions
-3. Record Types
-4. The Universe Library
+3. Repetition with Images, the Animate Library
+4. Record Types
 
 ---
 
