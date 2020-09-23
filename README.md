@@ -169,13 +169,13 @@ The [Animate Library](https://github.com/BC-CSCI1103/f19/blob/master/resources/l
 Animate.start () ~name:"Ring Demo" ~width:800. ~height:800. ~stopWhen:finished ~viewLast:view
 ```
 
-the `Animate.start` function is called with 6 inputs: `()`, `"Ring Demo"`, `800.`, `800.`, `finished` and `view`. The first argument `()` is a trivial example of a model that the application is managing. In this case, there isn't much going on so the model bears no information. The inputs `finished` and `view` are both *functions*. The former `finished : unit -> bool` is a function that is called by the `Animate.start` function with the model as an input and returns `true` or `false` depending on whether or not the application is ready to continue or ready to halt. For this first example, we define this function as
+the `Animate.start` function is called with 6 inputs: `()`, `"Ring Demo"`, `800.`, `800.`, `finished` and `view`. The first argument `()` is a trivial example of a model that the application is managing. In this case, there isn't much going on so the model bears no information. The inputs `finished` and `view` are both *functions*. The former `finished : model -> bool` is a function that is called by the `Animate.start` function with the model as an input and returns `true` or `false` depending on whether or not the application is ready to continue or ready to halt. For this first example we can define this function as
 
 ```ocaml
 let finished () = true
 ```
 
-The function is ready to halt no matter what. For the `~viewLast:view` input, the `view : unit -> Image.t` function will be called by the `Animate.start` function when the application has determined that it's ready to halt. It is called with the model (i.e., `()`), it returns an image that the `Animate.start` function will display.
+The function tells `Animate.start` to halt no matter what. For the `~viewLast:view` input, the `view : model -> Image.t` function will be called by the `Animate.start` function when the application has determined that it's ready to halt. It is called with the model (i.e., `()`) as input and returns an image that the `Animate.start` function will display before exiting.
 
 Given definitions of the `displayWidth` and `displayHeight`, say something like:
 
@@ -186,9 +186,10 @@ let displayHeight = displayWidth
 let empty  = Image.empty displayWidth displayHeight
 ```
 
-we can then write the `randomRing : unit -> Image.t` function as follows:
+we can then write the `randomRing` function as follows:
 
 ```ocaml
+(* randomRing : unit -> Image.t *)
 let randomRing () =
   let radius = (Random.float displayWidth) /. 2.0 in
   let width = Random.float radius in
@@ -202,7 +203,7 @@ let randomRing () =
 For the static image on the left we write a recursive function that builds the image compositionally having been prompted by a single external call:
 
 ```ocaml
-(* rings : int -> Image.t -> Image.t *)
+(* addRings : int -> Image.t -> Image.t *)
 let rec addRings n background =
   match n = 0 with 
   | true  -> background
@@ -217,7 +218,7 @@ let rec addRings n background =
 Then `view` can be defined simply as
 
 ```ocaml
-(* view : unit -> Image.t *)
+(* view : model -> Image.t *)
 let view () = addRings 100 empty
 ```
 
@@ -228,12 +229,46 @@ let () = Animate.start ()
            ~name: "Static Rings Demo"
            ~width: displayWidth
            ~height: displayHeight
-           ~view: view
            ~stopWhen: finished
            ~viewLast: view
 ```
 
-For the "dynamic" version on the right above, the `Animate.start` function needs to retain both the image that is being built up as well as the number of rings that need to be added. This suggests a model that is a pair `(number, image`)  rather than `()`. We write:
+For the "dynamic" version on the right above,  our application needs to retain both the image that is being built up as well as the number of rings that remain to be added. This suggests a model that is a pair `(count, image`)  rather than `()`. This model will be provided as input to several functions provided to `Animate.start` as input arguments.
+
+The `Animate.start` function executes synchronously to the tick-tock of a metronome. It works in milliseconds (1000s of a second) with a default value of `1000.` (i.e., one second). The rate can be altered by providing a `~rate` argument.  Leaving out the `~name`, `~width` and `~height` inputs to save space, one can understand how `Animate.start` works given a call
+
+```ocaml
+Animate.start model ... ~onTick:update ~rate:0.1 ~view:view ~stopWhen:finished ~viewLast:viewLast
+```
+
+1. If `(finished model)` returns `true`, we're done, display the final image produced by `(viewLast model)`, then halt.
+2. If `(finished model)` returns `false` then
+   + display the image produced by `(view model)`;
+   + set the `model` to `(update model)`
+   + go to step 1.
+
+If our model is a pair `(count, image)` then the application is finished if `count` is `0`.
+
+```ocaml
+(* finished : model -> bool *)
+let finished (count, _) = count = 0
+```
+
+The `view` function is even simpler:
+
+```ocaml
+(* view : model -> Image.t *)
+let view (_, image) = image
+```
+
+Finally, the `update` function needs to add one ring to the image on each clock-tick and decrement the number remaining.
+
+```ocaml
+(* update : model -> model *)
+let update (count, image) = (count + 1, addRings 1 image)
+```
+
+Putting it all together, we have
 
 ```ocaml
 let () = Animate.start (100, empty)
@@ -241,22 +276,10 @@ let () = Animate.start (100, empty)
            ~width: displayWidth
            ~height: displayHeight
            ~onTick: update
+           ~rate: 0.01
            ~view: view
            ~stopWhen: finished
            ~viewLast: view
-```
-
-where
-
-```ocaml
-let update (count, image) = (count - 1, addRings 1 image)
-```
-
-and
-
-```ocaml
-let finished (count, _) = count = 0
-let view (_, image) = image
 ```
 
 You can find the code in the `src` directory.
