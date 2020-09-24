@@ -265,7 +265,7 @@ Finally, the `update` function needs to add one ring to the image on each clock-
 
 ```ocaml
 (* update : model -> model *)
-let update (count, image) = (count + 1, addRings 1 image)
+let update (count, image) = (count - 1, addRings 1 image)
 ```
 
 Putting it all together, we have
