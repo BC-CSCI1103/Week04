@@ -1,0 +1,16 @@
+EXCLUDE_QUERY_DIR
+B /Users/muller/.opam/default/lib/animate
+B /Users/muller/.opam/default/lib/cairo2
+B /Users/muller/.opam/default/lib/cairo2-gtk
+B /Users/muller/.opam/default/lib/lablgtk2
+B /Users/muller/.opam/default/lib/ocaml
+B /Users/muller/.opam/default/lib/ocaml/threads
+B ../_build/default/bin/.main.eobjs/byte
+S /Users/muller/.opam/default/lib/animate
+S /Users/muller/.opam/default/lib/cairo2
+S /Users/muller/.opam/default/lib/cairo2-gtk
+S /Users/muller/.opam/default/lib/lablgtk2
+S /Users/muller/.opam/default/lib/ocaml
+S /Users/muller/.opam/default/lib/ocaml/threads
+S .
+FLG -opaque
